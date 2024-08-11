@@ -25,3 +25,27 @@ unsigned long GenerateHash(char* str) {
     hash %= HASH_TABLE_SIZE;
     return hash;
 }
+Parcel* InitializeKeyValuePair(char* country, int weight, float value) {
+    Parcel* keyPairs = (Parcel*)malloc(sizeof(Parcel));
+    if (keyPairs == NULL) {
+        printf("EOM");
+        exit(EXIT_FAILURE);
+    }
+    keyPairs->country = (char*)malloc(strlen(country) + 1);
+    if (keyPairs->country == NULL) {
+        printf("EOM");
+        exit(EXIT_FAILURE);
+    }
+    strcpy(keyPairs->country, country);
+    keyPairs->weight = weight;
+    keyPairs->value = value;
+    keyPairs->LeftChild = NULL;
+    keyPairs->RightChild = NULL;
+    return keyPairs;
+}
+void clear(char* removeBuf) {
+    char* temp = strchr(removeBuf, '\n');
+    if (temp != NULL) {
+        *temp = '\0';  // replaces the '/n' to '/0'
+    }
+}
