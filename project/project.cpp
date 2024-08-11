@@ -49,3 +49,28 @@ void clear(char* removeBuf) {
         *temp = '\0';  // replaces the '/n' to '/0'
     }
 }
+void InsertInHashTable(HashTable* table, char* country, int weight, float value) {
+    // Generate the hash value for the given country
+    int hash = GenerateHash(country);
+
+    // Create a new parcel node for the entry
+    Parcel* newParcel = InitializeKeyValuePair(country, weight, value);
+
+    // Check if the slot at the hash index is empty
+    if (table->root[hash] == NULL) {
+        table->root[hash] = newParcel;
+        // Insert the parcel directly into the hash table
+    }
+    else {
+        // Handle collision by chaining (linked list)
+        Parcel* current = table->root[hash];
+
+        // Traverse to the end of the linked list at this index
+        while (current->RightChild != NULL) {
+            current = current->RightChild;
+        }
+
+        // Insert the new parcel at the end of the linked list
+        current->RightChild = newParcel;
+    }
+}
