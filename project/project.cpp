@@ -15,6 +15,15 @@ typedef struct Parcel {
 typedef struct HashTable {
     Parcel* root[HASH_TABLE_SIZE];
 }HashTable;
+
+unsigned long GenerateHash(char* str);
+Parcel* InitializeKeyValuePair(char* country, int weight, float value);
+void InsertInHashTable(HashTable* hashTable, char* country, int weight, float value);
+Parcel* InsertElementIntoBST(Parcel* parent, char* country, int weight, float value);
+HashTable* InitializeHashTable(void);
+Parcel* InitializeNode(char* country, int weight, float value);
+void DisplayAllParcels(HashTable* hashTable, char* country);
+void DisplayParcelByWeight(HashTable* hashTable, char* country, int weight, int isHigher);
 int main(void) {
     HashTable* hashTable = InitializeHashTable();
 
@@ -145,3 +154,41 @@ Parcel* InsertElementIntoBST(Parcel* parent, char* country, int weight, float va
     // Return the parent node (this allows the subtree to be reattached properly)
     return parent;
 }
+void DisplayAllParcels(HashTable* hashTable, char* country) {
+    unsigned long hash = GenerateHash(country);
+    Parcel* current = hashTable->root[hash];
+
+    if (current == NULL) {
+        printf("No parcels found for country: %s\n", country);
+        return;
+    }
+
+    printf("Parcels for country: %s\n", country);
+    while (current != NULL) {
+        printf("Destination: %s, Weight: %d, Value: %.2f\n", current->country, current->weight, current->value);
+        current = current->RightChild;
+    }
+}
+
+// Display parcels by weight for a given country
+void DisplayParcelByWeight(HashTable* hashTable, char* country, int weight, int isHigher) {
+    unsigned long hash = GenerateHash(country);
+    Parcel* current = hashTable->root[hash];
+
+    if (current == NULL) {
+        printf("No parcels found for country: %s\n", country);
+        return;
+    }
+
+    printf("Parcels for country: %s with weight %s than %d\n", country, isHigher ? "greater" : "less", weight);
+    while (current != NULL) {
+        // Ensure current is valid before accessing its weight
+        if ((isHigher && current->weight > weight) || (!isHigher && current->weight < weight)) {
+            printf("Destination: %s, Weight: %d, Value: %.2f\n", current->country, current->weight, current->value);
+        }
+
+        // Move to the next right child in the BST
+        current = current->RightChild;
+    }
+}
+
