@@ -5,7 +5,7 @@
 #define MAX_COUNTRY_LENGTH 20
 
 typedef struct Parcel {
-    char* destination;
+    char* country;
     int weight;
     float value;
     struct Parcel* LeftChild;
@@ -73,4 +73,22 @@ void InsertInHashTable(HashTable* table, char* country, int weight, float value)
         // Insert the new parcel at the end of the linked list
         current->RightChild = newParcel;
     }
+}
+Parcel* InitializeNode(char* country, int weight, float value) {
+    Parcel* node = (Parcel*)malloc(sizeof(Parcel));
+    if (node == NULL) {
+        printf("EOM");
+        exit(EXIT_FAILURE);
+    }
+    node->country = (char*)malloc(strlen(country) + 1); // Allocate memory for country
+    if (node->country == NULL) {
+        printf("EOM");
+        exit(EXIT_FAILURE);
+    }
+    strcpy(node->country, country); // Copy the country string
+    node->weight = weight;
+    node->value = value;
+    node->LeftChild = NULL;
+    node->RightChild = NULL;
+    return node;
 }
