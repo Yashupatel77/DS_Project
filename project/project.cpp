@@ -15,7 +15,41 @@ typedef struct Parcel {
 typedef struct HashTable {
     Parcel* root[HASH_TABLE_SIZE];
 }HashTable;
+int main(void) {
+    HashTable* hashTable = InitializeHashTable();
 
+    FILE* file = fopen("couriers.txt", "r");
+    if (file == NULL) {
+        printf("Failed to open file:\n");
+        exit(EXIT_FAILURE);
+    }
+
+    char buffer[100];
+    char inputBuffer[100];
+    char country[MAX_COUNTRY_LENGTH];
+    int weight;
+    float value;
+
+    while (fgets(buffer, 100, file) != NULL) {
+        clear(buffer);
+        if (sscanf(buffer, "%[^,],%d,%f", country, &weight, &value) == 3) {
+            if (weight < 100 || weight > 50000 || value < 10 || value > 2000) {
+                printf("Invalid data: %s, %d, %.2f\n", country, weight, value);
+                continue;
+            }
+            Parcel* node = InitializeNode(country, weight, value);
+            InsertInHashTable(hashTable, country, weight, value);
+            InsertElementIntoBST(node, country, weight, value);
+        }
+        else {
+            printf("Invalid line format: %s", buffer);
+        }
+        
+    }
+
+    fclose(file);
+    return 0;
+}
 unsigned long GenerateHash(char* str) {
     unsigned long hash = 5381;
     int c;
