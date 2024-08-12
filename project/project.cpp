@@ -24,6 +24,8 @@ HashTable* InitializeHashTable(void);
 Parcel* InitializeNode(char* country, int weight, float value);
 void DisplayAllParcels(HashTable* hashTable, char* country);
 void DisplayParcelByWeight(HashTable* hashTable, char* country, int weight, int isHigher);
+void DisplayCheapestAndMostExpensive(HashTable* hashTable, char* country);
+void DisplayLightestAndHeaviest(HashTable* hashTable, char* country);
 int main(void) {
     HashTable* hashTable = InitializeHashTable();
 
@@ -191,4 +193,51 @@ void DisplayParcelByWeight(HashTable* hashTable, char* country, int weight, int 
         current = current->RightChild;
     }
 }
+void DisplayTotalParcelLoad(HashTable* hashTable, char* country) {
+    unsigned long hash = GenerateHash(country);
+    Parcel* current = hashTable->root[hash];
 
+    if (current == NULL) {
+        printf("No parcels found for country: %s\n", country);
+        return;
+    }
+
+    int totalWeight = 0;
+    float totalValue = 0.0;
+
+    while (current != NULL) {
+        totalWeight += current->weight;
+        totalValue += current->value;
+        current = current->RightChild;
+    }
+
+    printf("Total parcel load for %s: %d grams\n", country, totalWeight);
+    printf("Total parcel valuation for %s: $%.2f\n", country, totalValue);
+}
+
+// Display cheapest and most expensive parcel for a country
+void DisplayCheapestAndMostExpensive(HashTable* hashTable, char* country) {
+    unsigned long hash = GenerateHash(country);
+    Parcel* current = hashTable->root[hash];
+
+    if (current == NULL) {
+        printf("No parcels found for country: %s\n", country);
+        return;
+    }
+
+    Parcel* cheapest = current;
+    Parcel* mostExpensive = current;
+
+    while (current != NULL) {
+        if (current->value < cheapest->value) {
+            cheapest = current;
+        }
+        if (current->value > mostExpensive->value) {
+            mostExpensive = current;
+        }
+        current = current->RightChild;
+    }
+
+    printf("Cheapest parcel for %s: Destination: %s, Weight: %d, Value: %.2f\n", country, cheapest->country, cheapest->weight, cheapest->value);
+    printf("Most expensive parcel for %s: Destination: %s, Weight: %d, Value: %.2f\n", country, mostExpensive->country, mostExpensive->weight, mostExpensive->value);
+}
