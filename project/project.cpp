@@ -92,3 +92,22 @@ Parcel* InitializeNode(char* country, int weight, float value) {
     node->RightChild = NULL;
     return node;
 }
+Parcel* InsertElementIntoBST(Parcel* parent, char* country, int weight, float value) {
+    // If the parent node is NULL, it means we should insert a new node here
+    if (parent == NULL) {
+        return InitializeNode(country, weight, value);
+    }
+
+    // If the parent node is valid, proceed with the comparison
+    if (weight < parent->weight) {
+        // Recursively insert into the left subtree
+        parent->LeftChild = InsertElementIntoBST(parent->LeftChild, country, weight, value);
+    }
+    else if (weight > parent->weight) {
+        // Recursively insert into the right subtree
+        parent->RightChild = InsertElementIntoBST(parent->RightChild, country, weight, value);
+    }
+
+    // Return the parent node (this allows the subtree to be reattached properly)
+    return parent;
+}
