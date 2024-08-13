@@ -27,6 +27,7 @@ void DisplayAllParcels(HashTable* hashTable, char* country);
 void DisplayParcelByWeight(HashTable* hashTable, char* country, int weight, int isHigher);
 void DisplayCheapestAndMostExpensive(HashTable* hashTable, char* country);
 void DisplayLightestAndHeaviest(HashTable* hashTable, char* country);
+void FreeMemory(HashTable* hashTable);
 int main(void) {
     HashTable* hashTable = InitializeHashTable();
 
@@ -126,7 +127,7 @@ int main(void) {
         }
 
     } while (choice != 6);
-
+    FreeMemory(hashTable);
     return 0;
 }
 unsigned long GenerateHash(char* str) {
@@ -308,4 +309,16 @@ void DisplayCheapestAndMostExpensive(HashTable* hashTable, char* country) {
 
     printf("Cheapest parcel for %s: Destination: %s, Weight: %d, Value: %.2f\n", country, cheapest->country, cheapest->weight, cheapest->value);
     printf("Most expensive parcel for %s: Destination: %s, Weight: %d, Value: %.2f\n", country, mostExpensive->country, mostExpensive->weight, mostExpensive->value);
+}
+void FreeMemory(HashTable* hashTable) {
+    for (int i = 0; i < HASH_TABLE_SIZE; i++) {
+        Parcel* current = hashTable->root[i];
+        while (current != NULL) {
+            Parcel* next = current->RightChild;
+            free(current->country); // Free the country string memory
+            free(current); // Free the parcel memory
+            current = next;
+        }
+    }
+    free(hashTable); // Free the hash table memory
 }
