@@ -1,3 +1,4 @@
+
 #include <stdio.h>
 #include <stdlib.h>
 #include <string>
@@ -24,6 +25,8 @@ HashTable* InitializeHashTable(void);
 Parcel* InitializeNode(char* country, int weight, float value);
 void DisplayAllParcels(HashTable* hashTable, char* country);
 void DisplayParcelByWeight(HashTable* hashTable, char* country, int weight, int isHigher);
+void DisplayCheapestAndMostExpensive(HashTable* hashTable, char* country);
+void DisplayLightestAndHeaviest(HashTable* hashTable, char* country);
 int main(void) {
     HashTable* hashTable = InitializeHashTable();
 
@@ -53,10 +56,77 @@ int main(void) {
         else {
             printf("Invalid line format: %s", buffer);
         }
-        
+
     }
 
     fclose(file);
+    int choice = 0;
+    do {
+        printf("\nMenu:\n");
+        printf("1. Enter country name and display all the parcels details\n");
+        printf("2. Enter country and weight pair\n");
+        printf("3. Display the total parcel load and valuation for the country\n");
+        printf("4. Enter the country name and display cheapest and most expensive parcel’s details\n");
+        printf("5. Enter the country name and display lightest and heaviest parcel for the country\n");
+        printf("6. Exit the application\n");
+        printf("Enter your choice: ");
+
+        if (fgets(inputBuffer, 100, stdin) != NULL) {
+            clear(inputBuffer);
+            sscanf(inputBuffer, "%d", &choice);
+            switch (choice) {
+            case 1:
+                printf("Enter country name: ");
+                if (fgets(country, MAX_COUNTRY_LENGTH, stdin) != NULL) {
+                    // Remove the newline character if present
+                    clear(country);
+                    DisplayAllParcels(hashTable, country);
+                }
+                break;
+            case 2:
+                printf("Enter country name: ");
+                if (fgets(country, MAX_COUNTRY_LENGTH, stdin) != NULL) {
+                    clear(country);
+                    printf("Enter weight: ");
+                    if (fgets(inputBuffer, 100, stdin) != NULL) {
+                        clear(inputBuffer);
+                        sscanf(inputBuffer, "%d", &weight);
+                        DisplayParcelByWeight(hashTable, country, weight, 1);
+                        DisplayParcelByWeight(hashTable, country, weight, 0);
+                    }
+                }
+                break;
+            case 3:
+                printf("Enter country name: ");
+                if (fgets(country, MAX_COUNTRY_LENGTH, stdin) != NULL) {
+                    clear(country);
+                    DisplayTotalParcelLoad(hashTable, country);
+                }
+                break;
+            case 4:
+                printf("Enter country name: ");
+                if (fgets(country, MAX_COUNTRY_LENGTH, stdin) != NULL) {
+                    clear(country);
+                    DisplayCheapestAndMostExpensive(hashTable, country);
+                }
+                break;
+            case 5:
+                printf("Enter country name: ");
+                if (fgets(country, MAX_COUNTRY_LENGTH, stdin) != NULL) {
+                    clear(country);
+                    DisplayLightestAndHeaviest(hashTable, country);
+                }
+                break;
+            case 6:
+                printf("Exiting the application...\n");
+                break;
+            default:
+                printf("Invalid choice. Please try again.\n");
+            }
+        }
+
+    } while (choice != 6);
+
     return 0;
 }
 unsigned long GenerateHash(char* str) {
@@ -191,4 +261,51 @@ void DisplayParcelByWeight(HashTable* hashTable, char* country, int weight, int 
         current = current->RightChild;
     }
 }
+void DisplayTotalParcelLoad(HashTable* hashTable, char* country) {
+    unsigned long hash = GenerateHash(country);
+    Parcel* current = hashTable->root[hash];
 
+    if (current == NULL) {
+        printf("No parcels found for country: %s\n", country);
+        return;
+    }
+
+    int totalWeight = 0;
+    float totalValue = 0.0;
+
+    while (current != NULL) {
+        totalWeight += current->weight;
+        totalValue += current->value;
+        current = current->RightChild;
+    }
+
+    printf("Total parcel load for %s: %d grams\n", country, totalWeight);
+    printf("Total parcel valuation for %s: $%.2f\n", country, totalValue);
+}
+
+// Display cheapest and most expensive parcel for a country
+void DisplayCheapestAndMostExpensive(HashTable* hashTable, char* country) {
+    unsigned long hash = GenerateHash(country);
+    Parcel* current = hashTable->root[hash];
+
+    if (current == NULL) {
+        printf("No parcels found for country: %s\n", country);
+        return;
+    }
+
+    Parcel* cheapest = current;
+    Parcel* mostExpensive = current;
+
+    while (current != NULL) {
+        if (current->value < cheapest->value) {
+            cheapest = current;
+        }
+        if (current->value > mostExpensive->value) {
+            mostExpensive = current;
+        }
+        current = current->RightChild;
+    }
+
+    printf("Cheapest parcel for %s: Destination: %s, Weight: %d, Value: %.2f\n", country, cheapest->country, cheapest->weight, cheapest->value);
+    printf("Most expensive parcel for %s: Destination: %s, Weight: %d, Value: %.2f\n", country, mostExpensive->country, mostExpensive->weight, mostExpensive->value);
+}
