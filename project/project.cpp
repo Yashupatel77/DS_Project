@@ -4,6 +4,8 @@
 #define HASH_TABLE_SIZE 127
 #define MAX_COUNTRY_LENGTH 20
 #pragma warning(disable:4996)
+
+// Structure representing a parcel with country, weight, and value
 typedef struct Parcel {
 	char* country;
 	int weight;
@@ -12,6 +14,7 @@ typedef struct Parcel {
 	struct Parcel* RightChild;
 } Parcel;
 
+// Structure representing a hash table with an array of parcel roots
 typedef struct HashTable {
 	Parcel* root[HASH_TABLE_SIZE];
 } HashTable;
@@ -29,6 +32,8 @@ void DisplayCheapestAndMostExpensive(HashTable* hashTable, char* country);
 void DisplayLightestAndHeaviest(HashTable* hashTable, char* country);
 void FreeMemory(HashTable* hashTable);
 void clear(char* removeBuf);
+
+// Main function to manage parcel operations
 int main(void) {
 	HashTable* hashTable = InitializeHashTable();
 
@@ -63,21 +68,27 @@ int main(void) {
 	fclose(file);
 	int choice = 0;
 	do {
+
+		// Display menu options to the user and prompt for a choice
 		printf("\nMenu:\n");
-		printf("1. Enter country name and display all the parcels details\n");
-		printf("2. Enter country and weight pair\n");
-		printf("3. Display the total parcel load and valuation for the country\n");
-		printf("4. Enter the country name and display cheapest and most expensive parcel’s details\n");
-		printf("5. Enter the country name and display lightest and heaviest parcel for the country\n");
+		printf("1. To display all the parcels details enter the country\n");
+		printf("2. To display by sorting the weight enter country and weight pair\n");
+		printf("3. To Display the total parcel load and value for the country\n");
+		printf("4. To display cheapest and most expensive parcel details\n");
+		printf("5. To display lightest and heaviest parcel for the country\n");
 		printf("6. Exit the application\n");
 		printf("Enter your choice: ");
 		if (fgets(inputBuffer, 100, stdin) != NULL) {
 			clear(inputBuffer);
+
+			// Parse the user's choice from input
 			if (sscanf(inputBuffer, "%d", &choice) == 1) {
 				switch (choice) {
 				case 1:
 					printf("Enter country name: ");
 					if (fgets(country, MAX_COUNTRY_LENGTH, stdin) != NULL) {
+
+						// Remove the newline character if present
 						clear(country);
 						if (strlen(country) > 0) {
 							DisplayAllParcels(hashTable, country);
@@ -98,8 +109,10 @@ int main(void) {
 							printf("Enter weight: ");
 							if (fgets(inputBuffer, 100, stdin) != NULL) {
 								clear(inputBuffer);
+								// Validate and parse weight input
 								if (sscanf(inputBuffer, "%d", &weight) == 1) {
 									if (weight > 0) {
+										// Display parcels based on weight condition
 										DisplayParcelByWeight(hashTable, country, weight, 1);
 										DisplayParcelByWeight(hashTable, country, weight, 0);
 									}
@@ -172,6 +185,7 @@ int main(void) {
 					printf("Exiting the application...\n");
 					break;
 				default:
+					// Handle invalid menu choice
 					printf("Invalid choice. Please try again.\n");
 				}
 			}
@@ -185,10 +199,17 @@ int main(void) {
 
 
 	} while (choice != 6);
+	// Free all dynamically allocated memory
 	FreeMemory(hashTable);
 	return 0;
 }
 
+/*
+* FUNCTION: GenerateHash(char* str)
+* DESCRIPTION: Generates a hash value for a given string using a simple hashing algorithm.
+* PARAMETERS:  char* str - The string to hash.
+* RETURNS:     unsigned long - The generated hash value.
+*/
 unsigned long GenerateHash(char* str) {
 	unsigned long hash = 5381;
 	int c;
@@ -223,12 +244,30 @@ void InsertInHashTable(HashTable* table, char* country, int weight, float value)
 		current->RightChild = newParcel;
 	}
 }
+
+/*
+* FUNCTION: clear(char* removeBuf)
+* DESCRIPTION: Clears the input buffer by replacing newline character with null terminator.
+* PARAMETERS:  char* removeBuf - The buffer to clear.
+* RETURNS:     void
+*/
 void clear(char* removeBuf) {
 	char* temp = strchr(removeBuf, '\n');
 	if (temp != NULL) {
-		*temp = '\0';  // replaces the '/n' to '/0'
+
+		// replaces the '/n' to '/0'
+		*temp = '\0';
 	}
 }
+
+/*
+* FUNCTION: InitializeKeyValuePair(char* country, int weight, float value)
+* DESCRIPTION: Initializes a parcel node with the given country, weight, and value.
+* PARAMETERS:  char* country - The country for the parcel.
+*              int weight - The weight of the parcel.
+*              float value - The value of the parcel.
+* RETURNS:     Parcel* - Pointer to the initialized parcel node.
+*/
 Parcel* InitializeKeyValuePair(char* country, int weight, float value) {
 	Parcel* keyPairs = (Parcel*)malloc(sizeof(Parcel));
 	if (keyPairs == NULL) {
@@ -248,6 +287,17 @@ Parcel* InitializeKeyValuePair(char* country, int weight, float value) {
 	keyPairs->RightChild = NULL;
 	return keyPairs;
 }
+
+
+/*
+* FUNCTION: InsertElementIntoBST(Parcel* parent, char* country, int weight, float value)
+* DESCRIPTION: Inserts a parcel into a binary search tree (BST) based on weight.
+* PARAMETERS:  Parcel* parent - Pointer to the parent node.
+*              char* country - The country of the parcel.
+*              int weight - The weight of the parcel.
+*              float value - The value of the parcel.
+* RETURNS:     Parcel* - Pointer to the root of the updated subtree.
+*/
 Parcel* InsertElementIntoBST(Parcel* parent, char* country, int weight, float value) {
 	// If the parent node is NULL, it means we should insert a new node here
 	if (parent == NULL) {
@@ -268,6 +318,13 @@ Parcel* InsertElementIntoBST(Parcel* parent, char* country, int weight, float va
 	return parent;
 }
 
+/*
+* FUNCTION: InitializeHashTable(void)
+* DESCRIPTION: Initializes a hash table with all root pointers set to NULL.
+* PARAMETERS:  void
+* RETURNS:     HashTable* - Pointer to the initialized hash table.
+*/
+
 // Initialize the hash table with all roots set to NULL
 HashTable* InitializeHashTable(void) {
 	HashTable* table = (HashTable*)malloc(sizeof(HashTable));
@@ -276,10 +333,20 @@ HashTable* InitializeHashTable(void) {
 		exit(EXIT_FAILURE);
 	}
 	for (int i = 0; i < HASH_TABLE_SIZE; i++) {
-		table->root[i] = NULL; // Initialize each root to NULL
+
+		// Initialize each root to NULL
+		table->root[i] = NULL;
 	}
 	return table;
 }
+/*
+* FUNCTION: InitializeNode(char* country, int weight, float value)
+* DESCRIPTION: Allocates memory for a new parcel node and initializes it with given values.
+* PARAMETERS:  char* country - The country of the parcel.
+*              int weight - The weight of the parcel.
+*              float value - The value of the parcel.
+* RETURNS:     Parcel* - Pointer to the initialized node.
+*/
 
 // Corrected InitializeNode function to allocate memory for country
 Parcel* InitializeNode(char* country, int weight, float value) {
@@ -288,18 +355,29 @@ Parcel* InitializeNode(char* country, int weight, float value) {
 		printf("Memory allocation failed");
 		exit(EXIT_FAILURE);
 	}
-	node->country = (char*)malloc(strlen(country) + 1); // Allocate memory for country
+	// Allocate memory for country
+	node->country = (char*)malloc(strlen(country) + 1);
 	if (node->country == NULL) {
 		printf("Memory allocation failed");
 		exit(EXIT_FAILURE);
 	}
-	strcpy(node->country, country); // Copy the country string
+
+	// Copy the country string
+	strcpy(node->country, country);
 	node->weight = weight;
 	node->value = value;
 	node->LeftChild = NULL;
 	node->RightChild = NULL;
 	return node;
 }
+/*
+* FUNCTION: DisplayAllParcels(HashTable* hashTable, char* country)
+* DESCRIPTION: Displays all parcels for a specified country.
+* PARAMETERS:  HashTable* hashTable - Pointer to the hash table.
+*              char* country - The country for which to display parcels.
+* RETURNS:     void
+*/
+
 // Display all parcels for a given country
 void DisplayAllParcels(HashTable* hashTable, char* country) {
 	unsigned long hash = GenerateHash(country);
@@ -309,13 +387,25 @@ void DisplayAllParcels(HashTable* hashTable, char* country) {
 		printf("No parcels found for country: %s\n", country);
 		return;
 	}
-
+	if (strcmp(country, current->country) != 0) {
+		printf("Country not found: % s\n", country);
+		return;
+	}
 	printf("Parcels for country: %s\n", country);
 	while (current != NULL) {
 		printf("Destination: %s, Weight: %d, Value: %.2f\n", current->country, current->weight, current->value);
 		current = current->RightChild;
 	}
 }
+/*
+* FUNCTION: DisplayParcelByWeight(HashTable* hashTable, char* country, int weight, int isHigher)
+* DESCRIPTION: Displays parcels for a specified country filtered by weight.
+* PARAMETERS:  HashTable* hashTable - Pointer to the hash table.
+*              char* country - The country for which to display parcels.
+*              int weight - The weight for comparison.
+*              int isHigher - Flag indicating whether to display parcels heavier or lighter than the specified weight.
+* RETURNS:     void
+*/
 
 // Display parcels by weight for a given country
 void DisplayParcelByWeight(HashTable* hashTable, char* country, int weight, int isHigher) {
@@ -326,15 +416,20 @@ void DisplayParcelByWeight(HashTable* hashTable, char* country, int weight, int 
 		printf("No parcels found for country: %s\n", country);
 		return;
 	}
-
+	if (strcmp(country, current->country) != 0) {
+		printf("Country not found: % s\n", country);
+		return;
+	}
 	int found = 0;
 	printf("Parcels for country: %s with weight %s than %d\n", country, isHigher ? "greater" : "less", weight);
 	while (current != NULL) {
+
+		// Ensure current is valid before accessing its weight
 		if ((isHigher && current->weight > weight) || (!isHigher && current->weight < weight)) {
 			printf("Destination: %s, Weight: %d, Value: %.2f\n", current->country, current->weight, current->value);
 			found = 1;
 		}
-
+		// Move to the next right child in the BST
 		current = current->RightChild;
 	}
 
@@ -343,19 +438,33 @@ void DisplayParcelByWeight(HashTable* hashTable, char* country, int weight, int 
 	}
 }
 
+/*
+* FUNCTION: DisplayTotalParcelLoad(HashTable* hashTable, char* country)
+* DESCRIPTION: Displays the total parcel load and valuation for a specified country.
+* PARAMETERS:  HashTable* hashTable - Pointer to the hash table.
+*              char* country - The country for which to calculate total load and valuation.
+* RETURNS:     void
+*/
+
+
 // Display total parcel load and valuation for a country
 void DisplayTotalParcelLoad(HashTable* hashTable, char* country) {
 	unsigned long hash = GenerateHash(country);
 	Parcel* current = hashTable->root[hash];
 
+	// Check if there are any parcels for the given country
 	if (current == NULL) {
 		printf("No parcels found for country: %s\n", country);
 		return;
 	}
-
+	if (strcmp(country, current->country) != 0) {
+		printf("Country not found: % s\n", country);
+		return;
+	}
 	int totalWeight = 0;
 	float totalValue = 0.0;
 
+	// Traverse the BST and sum the weight and valuation of all parcels
 	while (current != NULL) {
 		totalWeight += current->weight;
 		totalValue += current->value;
@@ -366,16 +475,28 @@ void DisplayTotalParcelLoad(HashTable* hashTable, char* country) {
 	printf("Total parcel valuation for %s: $%.2f\n", country, totalValue);
 }
 
+/*
+* FUNCTION: DisplayCheapestAndMostExpensive(HashTable* hashTable, char* country)
+* DESCRIPTION: Displays the cheapest and most expensive parcels for a specified country.
+* PARAMETERS:  HashTable* hashTable - Pointer to the hash table.
+*              char* country - The country for which to find parcels.
+* RETURNS:     void
+*/
+
 // Display cheapest and most expensive parcel for a country
 void DisplayCheapestAndMostExpensive(HashTable* hashTable, char* country) {
+	// Generate hash value to find the corresponding index in the hash table
 	unsigned long hash = GenerateHash(country);
 	Parcel* current = hashTable->root[hash];
-
+	// Check if there are any parcels for the given country
 	if (current == NULL) {
 		printf("No parcels found for country: %s\n", country);
 		return;
 	}
-
+	if (strcmp(country, current->country) != 0) {
+		printf("Country not found: % s\n", country);
+		return;
+	}
 	Parcel* cheapest = current;
 	Parcel* mostExpensive = current;
 
@@ -388,24 +509,35 @@ void DisplayCheapestAndMostExpensive(HashTable* hashTable, char* country) {
 		}
 		current = current->RightChild;
 	}
-
+	// Output the details of the cheapest and most expensive parcels
 	printf("Cheapest parcel for %s: Destination: %s, Weight: %d, Value: %.2f\n", country, cheapest->country, cheapest->weight, cheapest->value);
 	printf("Most expensive parcel for %s: Destination: %s, Weight: %d, Value: %.2f\n", country, mostExpensive->country, mostExpensive->weight, mostExpensive->value);
 }
+
+/*
+* FUNCTION: DisplayLightestAndHeaviest(HashTable* hashTable, char* country)
+* DESCRIPTION: Displays the lightest and heaviest parcels for a specified country.
+* PARAMETERS:  HashTable* hashTable - Pointer to the hash table.
+*              char* country - The country for which to find parcels.
+* RETURNS:     void
+*/
 
 // Display lightest and heaviest parcel for a country
 void DisplayLightestAndHeaviest(HashTable* hashTable, char* country) {
 	unsigned long hash = GenerateHash(country);
 	Parcel* current = hashTable->root[hash];
-
+	// Check if there are any parcels for the given country
 	if (current == NULL) {
 		printf("No parcels found for country: %s\n", country);
 		return;
 	}
-
+	if (strcmp(country, current->country) != 0) {
+		printf("Country not found: % s\n", country);
+		return;
+	}
 	Parcel* lightest = current;
 	Parcel* heaviest = current;
-
+	// Traverse the BST to find the lightest and heaviest parcels
 	while (current != NULL) {
 		if (current->weight < lightest->weight) {
 			lightest = current;
@@ -419,16 +551,26 @@ void DisplayLightestAndHeaviest(HashTable* hashTable, char* country) {
 	printf("Heaviest parcel for %s: Destination: %s, Weight: %d, Value: %.2f\n", country, heaviest->country, heaviest->weight, heaviest->value);
 }
 
+/*
+* FUNCTION: FreeMemory(HashTable* hashTable)
+* DESCRIPTION: Frees all dynamically allocated memory for parcels and the hash table.
+* PARAMETERS:  HashTable* hashTable - Pointer to the hash table.
+* RETURNS:     void
+*/
+
 // Free all dynamically allocated memory
 void FreeMemory(HashTable* hashTable) {
 	for (int i = 0; i < HASH_TABLE_SIZE; i++) {
 		Parcel* current = hashTable->root[i];
 		while (current != NULL) {
 			Parcel* next = current->RightChild;
-			free(current->country); // Free the country string memory
-			free(current); // Free the parcel memory
+			// Free the country string memory
+			free(current->country);
+			// Free the parcel memory
+			free(current);
 			current = next;
 		}
 	}
-	free(hashTable); // Free the hash table memory
+	// Free the hash table memory
+	free(hashTable);
 }
