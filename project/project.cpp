@@ -1,3 +1,14 @@
+/*
+* FILE: project.cpp
+* PROJECT : SENG1050 - Project
+* PROGRAMMER : Virajsinh Dharmendrasinh Solanki & Yash Pareshkumar Patel
+* FIRST VERSION : 2024 - 08 - 11
+* DESCRIPTION : This is the project for data structures where with
+*				the use of Binary Search tree and Hash Table the countries
+*				their parcel weight as well as monetary values and display them 
+*				as required by the user from the menu.
+* GITHUB lINK: https://github.com/Yashupatel77/DS_Project
+*/
 #include <stdio.h>
 #include <stdlib.h>
 #include <string>
